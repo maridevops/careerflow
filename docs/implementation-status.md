@@ -30,4 +30,4 @@ Não coletar LinkedIn, Indeed ou Glassdoor automaticamente. Automação de envio
 
 Com Node.js instalado: `node --test tests/rules.test.cjs`.
 
-O conjunto de dez verificações foi executado no runtime JavaScript da sessão. O terminal local está bloqueado por erro de acesso do sandbox; a execução pelo Node local não foi realizada. A sintaxe da extensão também foi verificada pelo runtime JavaScript. Verificação de navegador deve ser feita na prévia antes do merge.
+O conjunto de dez verificações foi executado no runtime JavaScript da sessão. O terminal local está bloqueado por erro de acesso do sandbox; a execução pelo Node local não foi realizada. A sintaxe da extensão também foi verificada pelo runtime JavaScript. A verificação de navegador foi tentada, mas o runtime de navegador encerrou por falha na configuração do sandbox Windows. A prévia deve ser validada antes do merge. Dois cenários adicionais (aprovação válida e invalidação por localização) passaram no runtime da sessão.
