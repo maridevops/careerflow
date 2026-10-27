@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');const {test}=require('node:test');const R=require('../dist/rules.js').CareerRules;
+test("aliases",()=>assert.ok((()=>JSON.stringify(R.skills('k8s GH Actions'))===JSON.stringify(['Kubernetes','GitHub Actions']))()));
+test("git boundary",()=>assert.ok((()=>R.skills('GitHub Actions').includes('Git')===false)()));
+test("senior excluded",()=>assert.ok((()=>R.evaluate({role:'Senior Cloud Engineer',mode:'Remoto',location:'Brasil'},{}).reasons.length>0)()));
+test("mid not substring",()=>assert.ok((()=>R.evaluate({role:'Cloud III',mode:'Remoto',location:'Brasil',description:'Azure'},{}).uncertain.includes('Nível Pleno não confirmado'))()));
+test("missing location",()=>assert.ok((()=>!R.evaluate({role:'Cloud II',mode:'Remoto',description:'Azure'},{summary:'Azure'}).eligible)()));
+test("valid matching",()=>assert.ok((()=>R.evaluate({role:'Cloud II',mode:'Remoto',location:'Brasil',description:'Azure'},{summary:'Azure'}).score===100)()));
+test("no invented skills",()=>assert.ok((()=>R.evaluate({role:'Cloud II',mode:'Remoto',location:'Brasil',description:'Azure Terraform'},{summary:'Azure'}).missing.join()==='Terraform')()));
+test("zero weights",()=>assert.ok((()=>R.evaluate({}, {},{skillWeight:0,modeWeight:0,levelWeight:0}).score===0)()));
+test("approval required",()=>assert.ok((()=>!R.isApproved({status:'aprovada'}, {},{}))()));
+test("approval invalidated",()=>assert.ok((()=>!R.isApproved({status:'aprovada',reviewed:true,approvedAt:'date',fingerprint:R.fingerprint({role:'A'},{})},{role:'B'},{}))()));
