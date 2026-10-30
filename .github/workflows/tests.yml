@@ -1,0 +1,40 @@
+name: Regression tests
+on:
+  push:
+    branches: [main, 'fix/**']
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test
+      - name: Read-only source diagnostics
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: node scripts/check-sources.cjs
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify published frontend and jobs function
+        run: node scripts/verify-deployment.cjs

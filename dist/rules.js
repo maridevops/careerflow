@@ -19,15 +19,16 @@ function evaluate(job, profile, config={}){
  if(terms(c.forbidden).some(t=>includesTerm(text,t)))reasons.push('Palavra proibida na descrição');
  if(terms(c.keywords).length&&!terms(c.keywords).some(t=>includesTerm(text,t)))reasons.push('Sem área de interesse identificada');
  if(job.mode==='Presencial')reasons.push('Vaga presencial');
- else if(job.mode==='Remoto'){if(!c.remote)reasons.push('Remoto desativado');if(!/(brasil|brazil|latam|latin america|america latina|worldwide|global)/.test(normalize(job.location)))uncertain.push('Elegibilidade para Brasil/LATAM não confirmada');}
+ else if(job.mode==='Remoto'){if(!c.remote)reasons.push('Remoto desativado');if(!/(brasil|brazil|latam|latin america|america latina|worldwide)/.test(normalize(job.location)))uncertain.push('Elegibilidade para Brasil/LATAM não confirmada');if(/\b(only|apenas|somente|authorization|authorisation|visa|sponsorship|residen|citizen|autorizacao)\b/.test(normalize((job.location||'')+' '+(job.description||''))))uncertain.push('Há requisitos de localização ou autorização que precisam de revisão');}
  else if(job.mode==='Híbrido'){if(!c.hybrid)reasons.push('Híbrido desativado');if(!terms(c.cities).some(t=>includesTerm(job.location,t)))uncertain.push('Cidade híbrida não confirmada');}
  else uncertain.push('Modalidade não confirmada');
+ if(job.descriptionUnavailable||job.descriptionTruncated)uncertain.push('Descrição ausente ou incompleta; confira a vaga original');
  if(!required.length)uncertain.push('Nenhuma tecnologia reconhecida na vaga');
- const weights=[c.skillWeight,c.modeWeight,c.levelWeight].map(n=>Math.max(0,Number(n)||0)),total=weights.reduce((a,b)=>a+b,0);
+ const weights=[c.skillWeight,c.modeWeight,c.levelWeight].map(n=>Number.isFinite(Number(n))?Math.min(100,Math.max(0,Number(n))):0),total=weights.reduce((a,b)=>a+b,0);
  const points=total?Math.round(100*(weights[0]*(required.length?matched.length/required.length:0)+weights[1]*(job.mode==='Remoto'?1:job.mode==='Híbrido'?.5:0)+weights[2]*(mid?1:0))/total):0;
  return {score:points,matched,missing,reasons,uncertain,eligible:!reasons.length&&!uncertain.length};
 }
-function fingerprint(job,profile){return JSON.stringify([job.role,job.company,job.url,job.description,job.location,job.mode,profile.name,profile.email,profile.summary,profile.cv]);}
+function fingerprint(job,profile){return JSON.stringify([job.role,job.company,job.url,job.description,job.location,job.mode,job.draft,job.descriptionUnavailable,job.descriptionTruncated,profile.name,profile.email,profile.summary,profile.cv]);}
 function isApproved(application,job,profile){return Boolean(application&&application.status==='aprovada'&&application.reviewed&&application.approvedAt&&application.fingerprint===fingerprint(job,profile));}
 root.CareerRules={settings,terms,skills,evaluate,fingerprint,isApproved};
 })(typeof module!=='undefined'?module.exports:globalThis);
