@@ -44,7 +44,7 @@
  $('#reviewDraft').oninput=$('#reviewLocation').oninput=()=>{$('#reviewConfirmed').checked=false;$('#approveReview').disabled=true;};
  function persist(status){
  const draft=$('#reviewDraft').value.trim();if(status==='aprovada'&&(!$('#reviewConfirmed').checked||!draft))return toast('Revise e confirme a mensagem antes de aprovar.');
- j.location=$('#reviewLocation').value.trim();
+ j.location=$('#reviewLocation').value.trim();j.draft=draft;
  state.applications[jid]={draft,status,reviewed:status==='aprovada',approvedAt:status==='aprovada'?new Date().toISOString():null,fingerprint:R.fingerprint(j,state.profile),updatedAt:new Date().toISOString()};
  if(!save())return;draw();reviewDialog.close();toast(status==='aprovada'?'Candidatura aprovada. Nenhum envio realizado.':'Revisão salva.');
  }
