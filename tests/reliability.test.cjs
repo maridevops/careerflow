@@ -37,3 +37,10 @@ test('Timeout error does not report a successful empty search',async()=>{const r
 test('Oversized Greenhouse content falls back to metadata with warning',async()=>{const calls=[];const r=await createHandler(async url=>{calls.push(url);return calls.length===1?new Response('large',{headers:{'content-length':'17000000'}}):Response.json({jobs:[{title:'Cloud',absolute_url:'https://example.com/1'}]});})(event);const body=JSON.parse(r.body);assert.equal(r.statusCode,200);assert.ok(calls[1].endsWith('content=false'));assert.equal(body.jobs[0].descriptionUnavailable,true);assert.equal(body.warnings.length,1);});
 test('Streaming reader enforces actual bytes without content-length',async()=>assert.rejects(()=>readJson(new Response('a'.repeat(100)),20),e=>e.code==='BODY_TOO_LARGE'));
 test('Invalid provider never invokes fetch',async()=>{let calls=0;const r=await createHandler(async()=>{calls++;})( {...event,queryStringParameters:{provider:'__proto__',board:'example'}});assert.equal(r.statusCode,400);assert.equal(calls,0);});
+
+test('Editing a draft invalidates its previous approval',()=>{
+ const previous={...job,draft:'Reviewed message'},profile={summary:'Azure'};
+ const approval={status:'aprovada',reviewed:true,approvedAt:'2026-01-01',fingerprint:R.fingerprint(previous,profile)};
+ assert.equal(R.isApproved(approval,previous,profile),true);
+ assert.equal(R.isApproved(approval,{...previous,draft:'New text'},profile),false);
+});
