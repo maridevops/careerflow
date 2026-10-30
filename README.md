@@ -1,43 +1,36 @@
 # CareerFlow
 
-Painel pessoal para organizar oportunidades e preparar candidaturas em DevOps, Cloud e SRE.
+Painel para organizar vagas e revisar candidaturas em Cloud, DevOps e SRE.
 
-## Funcionalidades
+Site: https://enchanting-dodol-a1c6a0.netlify.app/
 
-- Cadastro de vagas e prevenção de links duplicados.
-- Priorização por palavras-chave e modalidade.
-- Geração de mensagens a partir de modelos editáveis.
-- Controle manual de status, filtros e busca.
-- Exportação CSV e backup/restauração JSON.
+## O que funciona
 
-## Executar
+- Cadastro e acompanhamento manual de oportunidades.
+- Perfil, link do currículo e mensagens editáveis.
+- Matching por regras, com explicação e confirmação individual de revisão.
+- Consulta de páginas públicas de Greenhouse, Lever (global/Europa) e Ashby, configuradas por empresa.
+- Filtros, paginação, cancelamento, importação sem duplicar URLs e atualização enquanto a aba estiver aberta e visível.
+- CSV e backup JSON, incluindo recuperação de backups anteriores.
 
-Abra `dist/index.html` em um navegador moderno. Para desenvolvimento, com Python instalado:
+O site **não envia candidaturas**, não importa currículos PDF, não autentica no LinkedIn e não acessa Gmail/Calendar. O matching é heurístico, sem modelo de IA. Uma aprovação registra revisão, não envio. Dados pessoais ficam no navegador, sem sincronização entre dispositivos.
 
-```sh
-python -m http.server 4173 --directory dist
-```
+## Executar e testar
 
-Acesse http://localhost:4173. Não há dependências de build. As fontes opcionais são carregadas do Google Fonts.
-
-## Validar JavaScript
-
-Com Node.js instalado:
+Requer Node.js 22. Sem dependências de produção.
 
 ```sh
-node --check dist/app.js
+node --test
 ```
 
-## Dados e integrações
+O frontend está em `dist/`. A busca usa `/.netlify/functions/jobs` e precisa do ambiente Netlify; abrir o HTML isolado permite organizar dados, mas não consultar a função.
 
-Os dados são salvos no localStorage do navegador e não são sincronizados entre dispositivos. Faça backups pela tela Perfil e currículo. O código contém os dados iniciais do perfil pessoal; este repositório foi criado como privado.
+O arquivo `netlify.toml` publica `dist`, instala as funções de `netlify/functions` e executa os testes antes do deploy. A prévia da PR deve passar antes do merge. Verifique o deploy de produção separadamente; uma prévia verde não comprova publicação da branch principal.
 
-O site prepara mensagens, mas não envia candidaturas, não conecta contas do LinkedIn e não executa tarefas quando está fechado. O status Enviada é informado manualmente após a candidatura na plataforma.
+## Dados e segurança
 
-## Estrutura
+Faça backups regularmente. Se a gravação falhar, a alteração é desfeita e o site informa o erro. Dados antigos inválidos não são sobrescritos: baixe a cópia de recuperação em Perfil e currículo. Restauração valida o arquivo antes de substituir os dados.
 
-- `dist/index.html`: interface.
-- `dist/style.css`: estilos responsivos.
-- `dist/app.js`: lógica e persistência local.
+A função consulta apenas hosts fixos de fontes públicas. Não recebe perfil, currículo ou credenciais. Respostas têm limites de tempo/tamanho e cache público. Respostas parciais e falhas não são usadas para concluir que vagas fecharam. Uma vaga ausente da fonte é sinalizada, não removida do seu radar pessoal.
 
-Este repositório armazena o código. A hospedagem do site não foi ativada por este envio.
+Detalhes: [busca pública](docs/public-job-discovery.md) e [revisão de confiabilidade](docs/reliability-review.md).
