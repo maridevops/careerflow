@@ -58,6 +58,8 @@
  $('#reviewClose').onclick=()=>reviewDialog.close();$('#matchSettingsForm').onsubmit=e=>{e.preventDefault();let f=e.target,next=Object.fromEntries(new FormData(f));for(const k of ['skillWeight','modeWeight','levelWeight'])next[k]=Number(next[k]);if(next.skillWeight+next.modeWeight+next.levelWeight===0)return toast('Pelo menos um peso deve ser maior que zero.');next.remote=f.elements.remote.checked;next.hybrid=f.elements.hybrid.checked;state.matchSettings=next;if(save()){reviewDialog.close();draw();toast('Filtros atualizados');}};
  reviewDialog.showModal();
  }
+ window.addEventListener('careerflow:change',()=>{if(!panel.hidden)draw();});
+ window.addEventListener('careerflow:restore',()=>{selected.clear();reviewDialog.close();});
  const profileSubmit=$('#profileForm').onsubmit;
- $('#profileForm').onsubmit=e=>{profileSubmit(e);if(state.applications&&Object.values(state.applications).some(a=>a.status==='aprovada'))toast('Perfil atualizado. Revise novamente as candidaturas afetadas.');};
+ $('#profileForm').onsubmit=e=>{const success=profileSubmit(e);if(success&&state.applications&&Object.values(state.applications).some(a=>a.status==='aprovada'))toast('Perfil atualizado. Revise novamente as candidaturas afetadas.');};
 })();
