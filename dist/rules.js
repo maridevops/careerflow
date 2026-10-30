@@ -28,7 +28,7 @@ function evaluate(job, profile, config={}){
  const points=total?Math.round(100*(weights[0]*(required.length?matched.length/required.length:0)+weights[1]*(job.mode==='Remoto'?1:job.mode==='Híbrido'?.5:0)+weights[2]*(mid?1:0))/total):0;
  return {score:points,matched,missing,reasons,uncertain,eligible:!reasons.length&&!uncertain.length};
 }
-function fingerprint(job,profile){return JSON.stringify([job.role,job.company,job.url,job.description,job.location,job.mode,job.descriptionUnavailable,job.descriptionTruncated,profile.name,profile.email,profile.summary,profile.cv]);}
+function fingerprint(job,profile){return JSON.stringify([job.role,job.company,job.url,job.description,job.location,job.mode,job.draft,job.descriptionUnavailable,job.descriptionTruncated,profile.name,profile.email,profile.summary,profile.cv]);}
 function isApproved(application,job,profile){return Boolean(application&&application.status==='aprovada'&&application.reviewed&&application.approvedAt&&application.fingerprint===fingerprint(job,profile));}
 root.CareerRules={settings,terms,skills,evaluate,fingerprint,isApproved};
 })(typeof module!=='undefined'?module.exports:globalThis);
